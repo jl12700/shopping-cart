@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
@@ -33,6 +33,19 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         });
     };
 
+    useEffect(() => {
+        navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity
+                    style={{ marginRight: 15 }}
+                    onPress={() => navigation.navigate('Cart', { cart })}
+                >
+                    <Ionicons name="cart-outline" size={25} color="white" />
+                </TouchableOpacity>
+            ),
+        });
+    }, [cart, navigation]);
+
     const renderProduct = ({ item }: { item: Product }) => (
         <View style={styles.productContainer}>
             <Text style={styles.productName}>{item.name}</Text>
@@ -44,14 +57,7 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     );
 
     return (
-        <View style={styles.container}>       
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Food Panduck</Text>
-                <TouchableOpacity style={styles.cartButton} onPress={() => navigation.navigate('Cart', { cart })}>
-                    <Ionicons name="cart-outline" size={25} color="white" />
-                </TouchableOpacity>
-            </View>
-
+        <View style={styles.container}>
             <FlatList
                 data={products}
                 renderItem={renderProduct}
@@ -65,28 +71,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 19,
-        backgroundColor: '#f5f5f5', 
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
-        marginBottom: 15,
-        marginTop: 20, 
-    },
-    headerTitle: {
-        fontSize: 25,
-        fontWeight: 'bold',
-    },
-    cartButton: {
-        backgroundColor: 'darkgreen', 
-        padding: 5,
-        borderRadius: 5, 
-        borderWidth: .5, 
-        borderColor: 'darkgreen',
+        backgroundColor: '#f5f5f5',
     },
     productContainer: {
         marginBottom: 20,
@@ -94,9 +79,9 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 5,
-        position: 'relative', 
-        backgroundColor: 'white', 
-        shadowColor: '#000', 
+        position: 'relative',
+        backgroundColor: 'white',
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
@@ -111,9 +96,9 @@ const styles = StyleSheet.create({
     },
     addButton: {
         position: 'absolute',
-        bottom: 25, 
+        bottom: 25,
         right: 10,
-        backgroundColor: 'darkgreen', 
+        backgroundColor: 'darkgreen',
         paddingVertical: 6,
         paddingHorizontal: 12,
         borderRadius: 5,

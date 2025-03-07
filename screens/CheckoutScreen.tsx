@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { CommonActions } from '@react-navigation/native'; 
 
 interface Product {
     id: string;
@@ -9,14 +10,28 @@ interface Product {
 }
 
 const CheckoutScreen: React.FC<{ route: any; navigation: any }> = ({ route, navigation }) => {
-    const cart: Product[] = route.params.cart || [];
+    const cart: Product[] = route.params?.cart || []; 
 
     const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     const handleCheckout = () => {
-        Alert.alert("Checkout Successful", "Your order has been placed!", [
-            { text: "OK", onPress: () => navigation.navigate('Home') }
-        ]);
+        Alert.alert(
+            "Checkout Successful", 
+            "Your order has been placed!", 
+            [
+                { 
+                    text: "OK", 
+                    onPress: () => {
+                        navigation.dispatch(
+                            CommonActions.reset({
+                                index: 0,
+                                routes: [{ name: 'Food Panduck' }], 
+                            })
+                        );
+                    }
+                }
+            ]
+        );
     };
 
     const renderCheckoutItem = ({ item }: { item: Product }) => (
@@ -28,13 +43,6 @@ const CheckoutScreen: React.FC<{ route: any; navigation: any }> = ({ route, navi
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Text style={styles.headerButton}>Go Back</Text>
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Food Panduck</Text>
-            </View>
-
             <FlatList
                 data={cart}
                 renderItem={renderCheckoutItem}
@@ -60,25 +68,6 @@ const styles = StyleSheet.create({
         flex: 1, 
         padding: 19,
         backgroundColor: '#f5f5f5',
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
-        marginBottom: 15,
-        marginTop: 20,
-    },
-    headerButton: { 
-        fontSize: 17, 
-        color: 'black', 
-        fontWeight: 'bold' 
-    },
-    headerTitle: { 
-        fontSize: 25, 
-        fontWeight: 'bold' 
     },
     flatListContent: {
         paddingBottom: 20,

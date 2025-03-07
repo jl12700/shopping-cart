@@ -9,15 +9,19 @@ interface Product {
 }
 
 const CartScreen: React.FC<{ route: any; navigation: any }> = ({ route, navigation }) => {
-    const [cart, setCart] = useState<Product[]>(route.params.cart || []);
+    const [cart, setCart] = useState<Product[]>(route.params?.cart || []);
 
     const updateQuantity = (id: string, change: number) => {
-        setCart(prevCart => {
+        setCart((prevCart) => {
             return prevCart
-                .map(item => item.id === id ? { ...item, quantity: item.quantity + change } : item)
-                .filter(item => item.quantity > 0);
+                .map(item =>
+                    item.id === id ? { ...item, quantity: item.quantity + change } : item
+                )
+                .filter(item => item.quantity > 0); // Remove item if quantity is 0
         });
     };
+
+    const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     const renderCartItem = ({ item }: { item: Product }) => (
         <View style={styles.cartItem}>
@@ -26,11 +30,17 @@ const CartScreen: React.FC<{ route: any; navigation: any }> = ({ route, navigati
                 <Text style={styles.productPrice}>Php {item.price * item.quantity}</Text>
             </View>
             <View style={styles.quantityContainer}>
-                <TouchableOpacity style={styles.quantityButton} onPress={() => updateQuantity(item.id, -1)}>
+                <TouchableOpacity
+                    style={styles.quantityButton}
+                    onPress={() => updateQuantity(item.id, -1)}
+                >
                     <Text style={styles.quantityText}>-</Text>
                 </TouchableOpacity>
                 <Text style={styles.quantity}>{item.quantity}</Text>
-                <TouchableOpacity style={styles.quantityButton} onPress={() => updateQuantity(item.id, 1)}>
+                <TouchableOpacity
+                    style={styles.quantityButton}
+                    onPress={() => updateQuantity(item.id, 1)}
+                >
                     <Text style={styles.quantityText}>+</Text>
                 </TouchableOpacity>
             </View>
@@ -39,13 +49,6 @@ const CartScreen: React.FC<{ route: any; navigation: any }> = ({ route, navigati
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Text style={styles.headerButton}>Go Back</Text>
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Food Panduck</Text>
-            </View>
-
             {cart.length > 0 ? (
                 <FlatList
                     data={cart}
@@ -57,42 +60,32 @@ const CartScreen: React.FC<{ route: any; navigation: any }> = ({ route, navigati
             )}
 
             {cart.length > 0 && (
-                <TouchableOpacity
-                    style={styles.checkoutButton}
-                    onPress={() => navigation.navigate('Checkout', { cart })}
-                >
-                    <Text style={styles.checkoutButtonText}>Proceed to Checkout</Text>
-                </TouchableOpacity>
+                <View style={styles.totalContainer}>
+                    <View style={styles.totalRow}>
+                        <Text style={styles.totalLabel}>Total:</Text>
+                        <Text style={styles.totalPrice}>Php {totalPrice}</Text>
+                    </View>
+                    <TouchableOpacity
+                        style={styles.checkoutButton}
+                        onPress={() => navigation.navigate('Checkout', { cart })}
+                    >
+                        <Text style={styles.checkoutButtonText}>Checkout</Text>
+                    </TouchableOpacity>
+                </View>
             )}
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { 
-        flex: 1, 
+    container: {
+        flex: 1,
         padding: 19,
         backgroundColor: '#f5f5f5',
     },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
-        marginBottom: 15,
+    backButton: {
         marginTop: 20,
-        backgroundColor: '#f5f5f5',
-    },
-    headerButton: { 
-        fontSize: 17, 
-        color: 'black', 
-        fontWeight: 'bold' 
-    },
-    headerTitle: { 
-        fontSize: 25, 
-        fontWeight: 'bold' 
+        marginBottom: 15,
     },
     cartItem: {
         flexDirection: 'row',
@@ -118,9 +111,10 @@ const styles = StyleSheet.create({
     },
     productPrice: {
         fontSize: 16,
+        fontWeight: 'bold',
     },
-    quantityContainer: { 
-        flexDirection: 'row', 
+    quantityContainer: {
+        flexDirection: 'row',
         alignItems: 'center',
     },
     quantityButton: {
@@ -129,35 +123,61 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginHorizontal: 5,
     },
-    quantityText: { 
-        color: 'white', 
-        fontSize: 14, 
-        fontWeight: 'bold' 
+    quantityText: {
+        color: 'white',
+        fontSize: 14,
+        fontWeight: 'bold',
     },
-    quantity: { 
-        fontSize: 16, 
-        fontWeight: 'bold', 
-        marginHorizontal: 5 
+    quantity: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginHorizontal: 5,
     },
-    emptyCart: { 
-        fontSize: 18, 
-        textAlign: 'center', 
+    emptyCart: {
+        fontSize: 18,
+        textAlign: 'center',
         marginTop: 50,
         color: 'gray',
     },
-    checkoutButton: {
-        position: 'absolute',
-        bottom: 20,
-        right: 20,
-        backgroundColor: 'darkgreen',
-        paddingVertical: 8,
-        paddingHorizontal: 12,
-        borderRadius: 5,
+    totalContainer: {
+        backgroundColor: 'white',
+        borderRadius: 4,
+        padding: 15,
+        marginTop: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
     },
-    checkoutButtonText: { 
-        fontSize: 14, 
-        color: 'white', 
-        fontWeight: 'bold' 
+    totalRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 15,
+    },
+   
+    totalLabel: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: 'black',
+    },
+    totalPrice: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: 'black',
+    },
+    checkoutButton: {
+        backgroundColor: 'darkgreen',
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 4,
+        alignItems: 'center',
+    },
+    checkoutButtonText: {
+        fontSize: 16,
+        color: 'white',
+        fontWeight: 'bold',
     },
 });
 
